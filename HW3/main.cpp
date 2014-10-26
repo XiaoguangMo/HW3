@@ -8,10 +8,7 @@
 
 #include <iostream>
 #include <pthread.h>
-#include <algorithm>
 #include <fstream>
-#include <math.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 using namespace std;
@@ -26,6 +23,7 @@ string tempFile5="/Users/NNNO/Desktop/temp5.tmp";
 string global;
 char FileNeedMerge;
 int AllWorkDone=1;
+int countTempFile=0;
 
 void MergeSort(char* array, int left, int right);
 void Merge(char* array, int left, int mid, int right);
@@ -62,7 +60,6 @@ void* ReadFile(void* anyway){
     {
         s=s+temp;
         if (count%1000==0) {
-            cout<<"get input at count:"<<count<<endl;
             s=eraseEnter(s);
             global=s;
             s="";
@@ -71,38 +68,162 @@ void* ReadFile(void* anyway){
     }
     s=eraseEnter(s);
     global=s;
+    cout<<global<<endl;
     return NULL;
 }
 
 void *Sort(void* temp){
-    while (AllWorkDone) {
+    int countcount=0;
+while (AllWorkDone) {
         if (global.length()>0) {
-//            cout<<"start input"<<endl;
+            countcount++;
             sort(global.begin(), global.end());
-            
+            //
             ofstream out1;
-            out1.open((tempFile2),ios::in);
-            
+            out1.open((tempFile1),ios::in);
             if (!out1) {
-                cout<<"no"<<endl;
-            }else{
-                cout<<"yes"<<endl;
+                outloc=tempFile1;
             }
+            ofstream out2;
+            out2.open((tempFile2),ios::in);
+            if (!out2) {
+                outloc=tempFile2;
+            }
+            ofstream out3;
+            out3.open((tempFile3),ios::in);
+            if (!out3) {
+                outloc=tempFile3;
+            }
+            ofstream out4;
+            out4.open((tempFile4),ios::in);
+            if (!out4) {
+                outloc=tempFile4;
+            }
+            ofstream out5;
+            out5.open((tempFile5),ios::in);
+            if (!out5) {
+                outloc=tempFile5;
+            }
+            
+            
             ofstream out(outloc.c_str());
             if (out.is_open()) {
                 out<<global<<endl;
-//                out<<"hello"<<endl;
-//                for (int i=0; i<5; i++) {
-//                    if (FileNeedMerge[i][0]!='\0') {
-//                        for (int j=0; j<outloc.length(); j++) {
-//                            FileNeedMerge[i][j]=outloc[j];
-//                        }
-//                    }
-//                }
                 out.close();
+                countTempFile++;
             }
             global="";
 //            cout<<"global is :"<<global<<endl;
+        }
+//    cout<<countcount<<endl;
+
+    }
+    return NULL;
+}
+
+void* MergeThread(void* temp){
+    while (AllWorkDone) {
+//        cout<<"total file number is :"<<countTempFile<<endl;
+//        int count=0;
+        string readString1,readString2;
+        if (countTempFile>1) {
+//            cout<<countTempFile<<endl;
+            //still for mac only
+            ifstream in1;
+            in1.open((tempFile1),ios::in);
+            if (in1) {
+                readString1=tempFile1;
+            }
+            in1.close();
+            ifstream in2;
+            in2.open((tempFile2),ios::in);
+            if (in2) {
+                readString1=tempFile2;
+            }
+            in2.close();
+            ifstream in3;
+            in3.open((tempFile3),ios::in);
+            if (in3) {
+                readString1=tempFile3;
+            }
+            in3.close();
+            ifstream in4;
+            in4.open((tempFile4),ios::in);
+            if (in4) {
+                readString1=tempFile4;
+            }
+            in4.close();
+            ifstream in5;
+            in5.open((tempFile5),ios::in);
+            if (in5) {
+                readString1=tempFile5;
+            }
+            in5.close();
+            
+            ifstream fin(readString1.c_str());
+            string s,temp;
+            while( getline(fin,temp) )
+            {
+                s=s+temp;
+            }
+            fin.close();
+            remove(readString1.c_str());
+//            cout<<readString1<<" has been removed"<<endl;
+            
+//            string readSt
+//            ifstream in1;
+            ifstream in6;
+            ifstream in7;
+            ifstream in8;
+            ifstream in9;
+            ifstream in10;
+            in6.open((tempFile1),ios::in);
+            if (in6) {
+                readString2=tempFile1;
+            }
+            in6.close();
+            in7.open((tempFile2),ios::in);
+            if (in7) {
+                readString2=tempFile2;
+            }
+            in7.close();
+            in8.open((tempFile3),ios::in);
+            if (in8) {
+                readString2=tempFile3;
+            }
+            in8.close();
+            in9.open((tempFile4),ios::in);
+            if (in9) {
+                readString2=tempFile4;
+            }
+            in9.close();
+            in10.open((tempFile5),ios::in);
+            if (in10) {
+                readString2=tempFile5;
+            }
+            in10.close();
+            
+            ifstream fin2(readString2.c_str());
+            string s2,temp2;
+            while( getline(fin2,temp2) )
+            {
+                s2=s2+temp2;
+//                cout<<s2<<endl;
+            }
+            fin2.close();
+            remove(readString2.c_str());
+//            cout<<readString2<<" has been removed"<<endl;
+
+            countTempFile--;
+//            cout<<s.length()<<" "<<s2.length()<<endl;
+            s2=s2+s;
+            sort(s2.begin(), s2.end());
+            ofstream out(readString2.c_str());
+            if (out.is_open()) {
+                out<<s2<<endl;
+                out.close();
+            }
+
         }
     }
     return NULL;
@@ -153,13 +274,19 @@ void Merge(char* array, int left, int mid, int right)
 
 int main(int argc, const char * argv[]) {
     loc="/Users/NNNO/Desktop/testing2.txt";
-//    int lines=CountLines(loc.c_str());
-//    int blocks=ceil(lines/1000);
+//    ofstream out(loc.c_str());
+//    if (out.is_open()) {
+//        for (int i=0; i<4500; i++) {
+//            out<<i<<endl;
+//        }
+//        out.close();
+//    }
     pthread_t thread[3];
     pthread_create(&thread[0], NULL,ReadFile, NULL);
     pthread_create(&thread[1], NULL,Sort,NULL);
+    pthread_create(&thread[2], NULL, MergeThread, NULL);
     sleep(3);
-//    pthread_create(<#pthread_t *#>, <#const pthread_attr_t *#>, <#void *(*)(void *)#>, <#void *#>)
-//    ReadFile(loc.c_str());
+    
+
     return 0;
 }
